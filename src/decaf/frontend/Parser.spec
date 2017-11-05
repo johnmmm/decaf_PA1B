@@ -19,7 +19,7 @@ LITERAL
 IDENTIFIER   AND      OR    STATIC  INSTANCEOF
 LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
-','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
+','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}' ':'
 '@'  
 CASE DEFAULT
 SUPER
@@ -359,6 +359,11 @@ Expr            :   Expr1
                     {
                         $$.expr = $1.expr;
                     }
+                |	Cases
+					{
+                			$$.expr = $1.expr;
+                		}
+                
                 ;
 
 Expr1           :   Expr2 ExprT1
@@ -638,6 +643,8 @@ Expr9           :   Constant
                         }
                     }
                 ;
+                
+
 
 AfterNewExpr    :   IDENTIFIER '(' ')'
                     {
@@ -735,6 +742,57 @@ BreakStmt       :   BREAK
                         $$.stmt = new Tree.Break($1.loc);
                     }
                 ;
+                
+Cases			:	CASE '(' Expr ')' '{' CaseStmtList DefaultStmt '}'
+					{
+						$$.expr = new Tree.Switch($3.expr, $6.caselist, $7.defa, $1.loc);
+					}
+				;
+                
+CaseStmtList    :   CaseStmtList CaseStmt
+                    {
+                        $$.caselist.add($2.cas);
+                    }
+                |   /* empty */
+                    {
+                        $$ = new SemValue();
+                        $$.caselist = new ArrayList<Tree.Case>();
+                    }
+                ;
+                
+CaseStmt			:	Constant ':' Expr ';'
+ 					{
+ 						$$.cas = new Tree.Case($1.expr, $3.expr, $1.loc);
+ 					}
+ 				;
+                    
+DefaultStmt     :   DEFAULT ':' Expr ';'
+                    {
+                        $$.defa = new Tree.Default($3.expr, $1.loc);
+                    }
+                    
+Do				:	DO DoStmtList OD
+					{
+						$$.stmt = new Tree.Doing($2.doeslist, $1.loc);
+					}
+				;
+				
+DoStmtList		:	DoStmtList DOBLOCK DoStmt
+					{
+						$$.doeslist.add($3.does);
+					}
+				|   /* empty */
+                    {
+                        $$ = new SemValue();
+                        $$.doeslist = new ArrayList<Tree.Do>();
+                    }
+				;
+				
+DoStmt			:	Expr ':' Stmt
+					{
+						$$.does = new Tree.Do($1.expr, $3.stmt, $1.loc);
+					}
+				;
 
 IfStmt          :   IF '(' Expr ')' Stmt ElseClause
                     {
@@ -767,3 +825,4 @@ PrintStmt       :   PRINT '(' ExprList ')'
                         $$.stmt = new Tree.Print($3.elist, $1.loc);
                     }
                 ;
+                
