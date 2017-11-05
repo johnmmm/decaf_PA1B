@@ -11,7 +11,7 @@ javafx.util.Pair
 %start Program
 
 %tokens
-VOID   BOOL  INT   STRING   CLASS
+VOID   BOOL  INT   STRING   CLASS COMPLEX
 NULL   EXTENDS     THIS     WHILE   FOR
 IF     ELSE        RETURN   BREAK   NEW
 PRINT  READ_INTEGER         READ_LINE
@@ -20,6 +20,13 @@ IDENTIFIER   AND      OR    STATIC  INSTANCEOF
 LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
 ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
+'@'  
+CASE DEFAULT
+SUPER
+DCOPY SCOPY
+RE IM
+DO OD
+DOBLOCK COMPCAST PRINTCOMP
 
 %%
 
