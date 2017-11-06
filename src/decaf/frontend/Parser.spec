@@ -367,10 +367,6 @@ Expr            :   Expr1
                     {
                         $$.expr = $1.expr;
                     }
-                |	Cases
-					{
-                			$$.expr = $1.expr;
-                		}
                 ;
 
 Expr1           :   Expr2 ExprT1
@@ -613,6 +609,10 @@ Expr9           :   Constant
                     {
                         $$.expr = $1.expr;
                     }
+                |	Cases
+					{
+                			$$.expr = $1.expr;
+                		}
                 |   READ_INTEGER '(' ')'
                     {
                         $$.expr = new Tree.ReadIntExpr($1.loc);
@@ -782,14 +782,18 @@ Cases			:	CASE '(' Expr ')' '{' CaseStmtList DefaultStmt '}'
 					}
 				;
                 
-CaseStmtList    :   CaseStmtList CaseStmt
-                    {
-                        $$.caselist.add($2.cas);
+CaseStmtList    :   CaseStmt CaseStmtList
+                    {   
+                        $$.caselist = new ArrayList<Tree.Case>();
+                        $$.caselist.add($1.cas);
+                        if ($2.caselist != null) {
+                            $$.caselist.addAll($2.caselist);
+                        }
                     }
                 |   /* empty */
                     {
-                        $$ = new SemValue();
-                        $$.caselist = new ArrayList<Tree.Case>();
+						$$ = new SemValue();	
+						$$.caselist = new ArrayList<Tree.Case>();
                     }
                 ;
                 
