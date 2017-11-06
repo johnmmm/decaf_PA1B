@@ -79,17 +79,19 @@ public class Parser extends Table {
      * @return the parsed value of `symbol` if parsing succeeded, otherwise `null`.
      */
     private SemValue parse(int symbol, Set<Integer> follow) {
-        Pair<Integer, List<Integer>> result = null; // get production by lookahead symbol
+    		Pair<Integer, List<Integer>> result = query(symbol, lookahead);  // get production by lookahead symbol
         
         Set<Integer> begin = beginSet(symbol);
         Set<Integer> end = new HashSet<>();
         end.addAll(follow);
    		end.addAll(followSet(symbol));
+   		//System.out.println("fuck");
    		
-   		result = query(symbol, lookahead); // get production by lookahead symbol
-        if(result == null) {
+        if(!begin.contains(lookahead)) {
 	        	error();
-	        	while(true) {
+	        	while(true) 
+	        	{
+	        		System.out.println("fuck");
 	        		if(begin.contains(lookahead)) 
 	        		{
 	        			return parse(symbol, end);
@@ -122,6 +124,8 @@ public class Parser extends Table {
         params[0] = new SemValue(); // initialize return value
         	act(actionId, params); // do user-defined action
         return params[0];
+    	
+    		
     }
 
     /**
