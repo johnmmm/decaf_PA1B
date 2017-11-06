@@ -79,7 +79,33 @@ public class Parser extends Table {
      * @return the parsed value of `symbol` if parsing succeeded, otherwise `null`.
      */
     private SemValue parse(int symbol, Set<Integer> follow) {
-        Pair<Integer, List<Integer>> result = query(symbol, lookahead); // get production by lookahead symbol
+    		Pair<Integer, List<Integer>> result = query(symbol, lookahead);  // get production by lookahead symbol
+        
+        Set<Integer> begin = beginSet(symbol);
+        Set<Integer> end = new HashSet<>();
+        end.addAll(follow);
+   		end.addAll(followSet(symbol));
+   		//System.out.println("fuck");
+   		
+        if(!begin.contains(lookahead)) {
+	        	error();
+	        	while(true) 
+	        	{
+	        		if(begin.contains(lookahead)) 
+	        		{	        			
+	        			return parse(symbol, follow);
+	        		}
+	        		else if(end.contains(lookahead)) 
+	        		{
+	        			return null;
+	        		}
+	        		else
+	        		{
+	        			lookahead = lex();
+	        		}
+	        	}
+        }
+        
         int actionId = result.getKey(); // get user-defined action
 
         List<Integer> right = result.getValue(); // right-hand side of production
@@ -89,14 +115,21 @@ public class Parser extends Table {
         for (int i = 0; i < length; i++) { // parse right-hand side symbols one by one
             int term = right.get(i);
             params[i + 1] = isNonTerminal(term)
-                    ? parse(term, follow) // for non terminals: recursively parse it
+                    ? parse(term, end) // for non terminals: recursively parse it
                     : matchToken(term) // for terminals: match token
                     ;
         }
 
-        params[0] = new SemValue(); // initialize return value
-        act(actionId, params); // do user-defined action
-        return params[0];
+        try
+        {
+	        	params[0] = new SemValue(); // initialize return value
+	        	act(actionId, params); // do user-defined action
+	        return params[0];
+        }
+        catch(Exception e)
+        {
+        		return null;
+        }
     }
 
     /**
@@ -165,7 +198,7 @@ public class Parser extends Table {
      * Implement this by yourself on demand.
      */
     public void diagnose() {
-
+    		System.out.println("miao");
     }
 
 }
