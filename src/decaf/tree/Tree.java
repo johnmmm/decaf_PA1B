@@ -1444,10 +1444,12 @@ public abstract class Tree {
     
     public static class Doing extends Tree {
 	    	public List<Do> does;
+	    	public Do dostmt;
 	    	
-	    	public Doing(List<Do> does, Location loc){
+	    	public Doing(List<Do> does, Do dostmt, Location loc){
 	    		super(DOING, loc);
 	    		this.does = does;
+	    		this.dostmt = dostmt;
 	    	}
 	    	
 	    	@Override
@@ -1461,6 +1463,7 @@ public abstract class Tree {
 	    		pw.incIndent();
 	    		pw.println("branches");
 	    		pw.incIndent();
+	    		dostmt.printTo(pw);
 	    		for(Do d : does)
 	    		{
 	    			d.printTo(pw);

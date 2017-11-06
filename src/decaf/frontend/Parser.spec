@@ -247,6 +247,10 @@ Stmt            :   VariableDef
                     {
                         $$.stmt = $1.stmt;
                     }
+                |   Do ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
                 |   StmtBlock
                     {
                         $$.stmt = $1.stmt;
@@ -808,19 +812,22 @@ DefaultStmt     :   DEFAULT ':' Expr ';'
                         $$.defa = new Tree.Default($3.expr, $1.loc);
                     }
                     
-Do				:	DO DoStmtList OD
+Do				:	DO DoStmt DoStmtList OD
 					{
-						$$.stmt = new Tree.Doing($2.doeslist, $1.loc);
+						$$.stmt = new Tree.Doing($3.doeslist, $2.does, $1.loc);
 					}
 				;
 				
-DoStmtList		:	DoStmtList DOBLOCK DoStmt
-					{
-						$$.doeslist.add($3.does);
+DoStmtList		:	DOBLOCK DoStmt DoStmtList
+					{		
+						$$.doeslist = new ArrayList<Tree.Do>();
+                        	$$.doeslist.add($2.does);
+                        	if ($3.doeslist != null) {
+                        		$$.doeslist.addAll($3.doeslist);
+                        	}
 					}
 				|   /* empty */
                     {
-                        $$ = new SemValue();
                         $$.doeslist = new ArrayList<Tree.Do>();
                     }
 				;
