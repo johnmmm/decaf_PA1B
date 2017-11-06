@@ -91,10 +91,9 @@ public class Parser extends Table {
 	        	error();
 	        	while(true) 
 	        	{
-	        		System.out.println("fuck");
 	        		if(begin.contains(lookahead)) 
-	        		{
-	        			return parse(symbol, end);
+	        		{	        			
+	        			return parse(symbol, follow);
 	        		}
 	        		else if(end.contains(lookahead)) 
 	        		{
@@ -116,16 +115,21 @@ public class Parser extends Table {
         for (int i = 0; i < length; i++) { // parse right-hand side symbols one by one
             int term = right.get(i);
             params[i + 1] = isNonTerminal(term)
-                    ? parse(term, follow) // for non terminals: recursively parse it
+                    ? parse(term, end) // for non terminals: recursively parse it
                     : matchToken(term) // for terminals: match token
                     ;
         }
 
-        params[0] = new SemValue(); // initialize return value
-        	act(actionId, params); // do user-defined action
-        return params[0];
-    	
-    		
+        try
+        {
+	        	params[0] = new SemValue(); // initialize return value
+	        	act(actionId, params); // do user-defined action
+	        return params[0];
+        }
+        catch(Exception e)
+        {
+        		return null;
+        }
     }
 
     /**
@@ -194,7 +198,7 @@ public class Parser extends Table {
      * Implement this by yourself on demand.
      */
     public void diagnose() {
-
+    		System.out.println("miao");
     }
 
 }
