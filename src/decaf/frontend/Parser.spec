@@ -243,6 +243,10 @@ Stmt            :   VariableDef
                     {
                         $$.stmt = $1.stmt;
                     }
+				|   PrintCompStmt ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
                 |   StmtBlock
                     {
                         $$.stmt = $1.stmt;
@@ -649,6 +653,26 @@ Expr9           :   Constant
                             $$.expr = new Tree.Ident(null, $1.ident, $1.loc);
                         }
                     }
+                |	DCOPY '(' Expr ')'
+	                	{
+	                		$$.expr = new Tree.Dcopy($3.expr, $3.loc);
+	                	}
+                	|	SCOPY '(' Expr ')'
+	                	{
+	                		$$.expr = new Tree.Scopy($3.expr, $3.loc);
+	                	}
+                	|	RE Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.RE, $2.expr, $1.loc);
+	                	}
+                	|	IM Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.IM, $2.expr, $1.loc);
+	                	}
+                	|	COMPCAST Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.COMPCAST, $2.expr, $1.loc);
+	                	}
                 ;
                 
 
@@ -834,4 +858,10 @@ PrintStmt       :   PRINT '(' ExprList ')'
                         $$.stmt = new Tree.Print($3.elist, $1.loc);
                     }
                 ;
+                
+PrintCompStmt	:	PRINTCOMP '(' ExprList ')'
+					{				
+						$$.stmt = new Tree.Printcomp($3.elist, $1.loc);					
+					}		
+				;
                 

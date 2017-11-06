@@ -908,6 +908,15 @@ public abstract class Tree {
                 case NOT:
                     unaryOperatorToString(pw, "not");
                     break;
+                case RE:
+	        			unaryOperatorToString(pw, "re");
+	        			break;
+	        		case IM:
+	        			unaryOperatorToString(pw, "im");
+	        			break;
+	        		case COMPCAST:
+	        			unaryOperatorToString(pw, "compcast");
+	        			break;
             }
         }
     }
@@ -1588,7 +1597,7 @@ public abstract class Tree {
 	    	}
     }
     
-    public static class Printcomp extends Expr {
+    public static class Printcomp extends Tree {
 	    	public List<Expr> exprs;
 	        public Printcomp(List<Expr> exprs, Location loc) {
 	            super(PRINTCOMP, loc);
