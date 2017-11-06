@@ -11,7 +11,7 @@ javafx.util.Pair
 %start Program
 
 %tokens
-VOID   BOOL  INT   STRING   CLASS
+VOID   BOOL  INT   STRING   CLASS COMPLEX
 NULL   EXTENDS     THIS     WHILE   FOR
 IF     ELSE        RETURN   BREAK   NEW
 PRINT  READ_INTEGER         READ_LINE
@@ -19,7 +19,14 @@ LITERAL
 IDENTIFIER   AND      OR    STATIC  INSTANCEOF
 LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
-','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
+','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}' ':'
+'@'  
+CASE DEFAULT
+SUPER
+DCOPY SCOPY
+RE IM
+DO OD
+DOBLOCK COMPCAST PRINTCOMP
 
 %%
 
@@ -76,6 +83,10 @@ SimpleType      :   INT
                 |   CLASS IDENTIFIER
                     {
                         $$.type = new Tree.TypeClass($2.ident, $1.loc);
+                    }
+                |   COMPLEX
+                    {
+                        $$.type = new Tree.TypeIdent(Tree.COMPLEX, $1.loc);
                     }
                 ;
 
@@ -229,6 +240,14 @@ Stmt            :   VariableDef
                         $$.stmt = $1.stmt;
                     }
                 |   BreakStmt ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
+				|   PrintCompStmt ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
+                |   Do ';'
                     {
                         $$.stmt = $1.stmt;
                     }
@@ -594,6 +613,10 @@ Expr9           :   Constant
                     {
                         $$.expr = $1.expr;
                     }
+                |	Cases
+					{
+                			$$.expr = $1.expr;
+                		}
                 |   READ_INTEGER '(' ')'
                     {
                         $$.expr = new Tree.ReadIntExpr($1.loc);
@@ -606,6 +629,10 @@ Expr9           :   Constant
                     {
                         $$.expr = new Tree.ThisExpr($1.loc);
                     }
+                |	SUPER
+              		{
+              			$$.expr = new Tree.Super($1.loc);
+              		}
                 |   NEW AfterNewExpr
                     {
                         if ($2.ident != null) {
@@ -630,7 +657,29 @@ Expr9           :   Constant
                             $$.expr = new Tree.Ident(null, $1.ident, $1.loc);
                         }
                     }
+                |	DCOPY '(' Expr ')'
+	                	{
+	                		$$.expr = new Tree.Dcopy($3.expr, $3.loc);
+	                	}
+                	|	SCOPY '(' Expr ')'
+	                	{
+	                		$$.expr = new Tree.Scopy($3.expr, $3.loc);
+	                	}
+                	|	RE Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.RE, $2.expr, $1.loc);
+	                	}
+                	|	IM Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.IM, $2.expr, $1.loc);
+	                	}
+                	|	COMPCAST Expr
+	                	{
+	                		$$.expr = new Tree.Unary(Tree.COMPCAST, $2.expr, $1.loc);
+	                	}
                 ;
+                
+
 
 AfterNewExpr    :   IDENTIFIER '(' ')'
                     {
@@ -679,6 +728,8 @@ Constant        :   LITERAL
                         $$.expr = new Null($1.loc);
                     }
                 ;
+                
+
 
 Actuals         :   ExprList
                     {
@@ -728,6 +779,64 @@ BreakStmt       :   BREAK
                         $$.stmt = new Tree.Break($1.loc);
                     }
                 ;
+                
+Cases			:	CASE '(' Expr ')' '{' CaseStmtList DefaultStmt '}'
+					{
+						$$.expr = new Tree.Switch($3.expr, $6.caselist, $7.defa, $1.loc);
+					}
+				;
+                
+CaseStmtList    :   CaseStmt CaseStmtList
+                    {   
+                        $$.caselist = new ArrayList<Tree.Case>();
+                        $$.caselist.add($1.cas);
+                        if ($2.caselist != null) {
+                            $$.caselist.addAll($2.caselist);
+                        }
+                    }
+                |   /* empty */
+                    {
+						$$ = new SemValue();	
+						$$.caselist = new ArrayList<Tree.Case>();
+                    }
+                ;
+                
+CaseStmt			:	Constant ':' Expr ';'
+ 					{
+ 						$$.cas = new Tree.Case($1.expr, $3.expr, $1.loc);
+ 					}
+ 				;
+                    
+DefaultStmt     :   DEFAULT ':' Expr ';'
+                    {
+                        $$.defa = new Tree.Default($3.expr, $1.loc);
+                    }
+                    
+Do				:	DO DoStmt DoStmtList OD
+					{
+						$$.stmt = new Tree.Doing($3.doeslist, $2.does, $1.loc);
+					}
+				;
+				
+DoStmtList		:	DOBLOCK DoStmt DoStmtList
+					{		
+						$$.doeslist = new ArrayList<Tree.Do>();
+                        	$$.doeslist.add($2.does);
+                        	if ($3.doeslist != null) {
+                        		$$.doeslist.addAll($3.doeslist);
+                        	}
+					}
+				|   /* empty */
+                    {
+                        $$.doeslist = new ArrayList<Tree.Do>();
+                    }
+				;
+				
+DoStmt			:	Expr ':' Stmt
+					{
+						$$.does = new Tree.Do($1.expr, $3.stmt, $1.loc);
+					}
+				;
 
 IfStmt          :   IF '(' Expr ')' Stmt ElseClause
                     {
@@ -760,3 +869,10 @@ PrintStmt       :   PRINT '(' ExprList ')'
                         $$.stmt = new Tree.Print($3.elist, $1.loc);
                     }
                 ;
+                
+PrintCompStmt	:	PRINTCOMP '(' ExprList ')'
+					{				
+						$$.stmt = new Tree.Printcomp($3.elist, $1.loc);					
+					}		
+				;
+                
