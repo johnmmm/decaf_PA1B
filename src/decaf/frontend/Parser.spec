@@ -84,6 +84,10 @@ SimpleType      :   INT
                     {
                         $$.type = new Tree.TypeClass($2.ident, $1.loc);
                     }
+                |   COMPLEX
+                    {
+                        $$.type = new Tree.TypeIdent(Tree.COMPLEX, $1.loc);
+                    }
                 ;
 
 Type            :   SimpleType ArrayType
@@ -363,7 +367,6 @@ Expr            :   Expr1
 					{
                 			$$.expr = $1.expr;
                 		}
-                
                 ;
 
 Expr1           :   Expr2 ExprT1
@@ -618,6 +621,10 @@ Expr9           :   Constant
                     {
                         $$.expr = new Tree.ThisExpr($1.loc);
                     }
+                |	SUPER
+              		{
+              			$$.expr = new Tree.Super($1.loc);
+              		}
                 |   NEW AfterNewExpr
                     {
                         if ($2.ident != null) {
@@ -693,6 +700,8 @@ Constant        :   LITERAL
                         $$.expr = new Null($1.loc);
                     }
                 ;
+                
+
 
 Actuals         :   ExprList
                     {
