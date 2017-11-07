@@ -85,7 +85,6 @@ public class Parser extends Table {
         Set<Integer> end = new HashSet<>();
         end.addAll(follow);
    		end.addAll(followSet(symbol));
-   		//System.out.println("fuck");
    		
         if(!begin.contains(lookahead)) {
 	        	error();
@@ -120,9 +119,10 @@ public class Parser extends Table {
                     ;
         }
 
+        params[0] = new SemValue(); // initialize return value
+        
         try
         {
-	        	params[0] = new SemValue(); // initialize return value
 	        	act(actionId, params); // do user-defined action
 	        return params[0];
         }
