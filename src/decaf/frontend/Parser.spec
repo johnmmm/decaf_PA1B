@@ -725,7 +725,7 @@ AfterParenExpr  :   Expr ')'
                     {
                         $$.expr = $1.expr;
                     }
-                |   CLASS IDENTIFIER ')' Expr8_9
+                |   CLASS IDENTIFIER ')' Expr9
                     {
                         $$.expr = new Tree.TypeCast($2.ident, $4.expr, $4.loc);
                     }

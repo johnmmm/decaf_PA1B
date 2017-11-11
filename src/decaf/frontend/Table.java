@@ -1,7 +1,7 @@
 /* This is auto-generated source by LL1-Parser-Gen.
  * Specification file: /Users/mac/Desktop/programme/Java/decaf_PA1B/src/decaf/frontend/Parser.spec
  * Options: unstrict mode
- * Generated at: Sat Nov 11 17:42:42 CST 2017
+ * Generated at: Sat Nov 11 18:00:09 CST 2017
  * Please do NOT modify it!
  *
  * Project repository: https://github.com/paulzfm/LL1-Parser-Gen
@@ -899,7 +899,7 @@ public class Table
                     case READ_INTEGER:
                         return new Pair<>(58, Arrays.asList(Expr, Integer.valueOf(')')));
                     case CLASS:
-                        return new Pair<>(59, Arrays.asList(CLASS, IDENTIFIER, Integer.valueOf(')'), Expr8_9));
+                        return new Pair<>(59, Arrays.asList(CLASS, IDENTIFIER, Integer.valueOf(')'), Expr9));
                     default: return null;
                 }
             }
