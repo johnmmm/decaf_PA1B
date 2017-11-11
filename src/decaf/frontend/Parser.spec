@@ -365,6 +365,23 @@ Oper7           :   '-'
                         $$.loc = $1.loc;
                     }
                 ;
+                
+Oper8			:	RE
+                		{
+               			$$.counter = Tree.RE;
+                        	$$.loc = $1.loc;
+                		}
+                |	IM
+                		{
+               			$$.counter = Tree.IM;
+                        	$$.loc = $1.loc;
+                		}
+                |	COMPCAST
+                		{
+                			$$.counter = Tree.COMPCAST;
+                        	$$.loc = $1.loc;
+                		}
+				;
 
 // expressions
 Expr            :   Expr1
@@ -547,7 +564,7 @@ ExprT6          :   Oper6 Expr7 ExprT6
                 |   /* empty */
                 ;
 
-Expr7           :   Oper7 Expr8
+Expr7           :   Oper7 Expr7
                     {
                         $$.expr = new Tree.Unary($1.counter, $2.expr, $1.loc);
                     }
@@ -557,7 +574,7 @@ Expr7           :   Oper7 Expr8
                     }
                 ;
 
-Expr8           :   Expr9 ExprT8
+Expr8           :   Expr8_9 ExprT8
                     {
                         $$.expr = $1.expr;
                         $$.loc = $1.loc;
@@ -607,6 +624,16 @@ AfterIdentExpr  :   '(' Actuals ')'
                         $$.elist = $2.elist;
                     }
                 |   /* empty */
+                ;
+                
+Expr8_9         :   Oper8 Expr9
+                    {
+                        $$.expr = new Tree.Unary($1.counter, $2.expr, $1.loc);
+                    }
+                |   Expr9
+                    {
+                        $$.expr = $1.expr;
+                    }
                 ;
 
 Expr9           :   Constant
@@ -665,20 +692,7 @@ Expr9           :   Constant
 	                	{
 	                		$$.expr = new Tree.Scopy($3.expr, $3.loc);
 	                	}
-                	|	RE Expr
-	                	{
-	                		$$.expr = new Tree.Unary(Tree.RE, $2.expr, $1.loc);
-	                	}
-                	|	IM Expr
-	                	{
-	                		$$.expr = new Tree.Unary(Tree.IM, $2.expr, $1.loc);
-	                	}
-                	|	COMPCAST Expr
-	                	{
-	                		$$.expr = new Tree.Unary(Tree.COMPCAST, $2.expr, $1.loc);
-	                	}
-                ;
-                
+                ; 
 
 
 AfterNewExpr    :   IDENTIFIER '(' ')'
@@ -711,7 +725,7 @@ AfterParenExpr  :   Expr ')'
                     {
                         $$.expr = $1.expr;
                     }
-                |   CLASS IDENTIFIER ')' Expr9
+                |   CLASS IDENTIFIER ')' Expr8_9
                     {
                         $$.expr = new Tree.TypeCast($2.ident, $4.expr, $4.loc);
                     }
